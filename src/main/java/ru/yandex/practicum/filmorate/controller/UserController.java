@@ -5,23 +5,23 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @Slf4j
 @RequestMapping("/users")
 public class UserController {
-    private  List<User> users = new ArrayList<>();
+    private Map<Integer, User> users = new HashMap<>();
 
     @GetMapping
-    public List<User> getUsers() {
+    public Map<Integer, User> getUsers() {
         return users;
     }
 
     @PostMapping
     public User addUser(@Valid @RequestBody User user) {
-        users.add(user);
+        users.put(user.getId(), user);
         if (user.getName() == null) {
             user.setName(user.getLogin());
         }

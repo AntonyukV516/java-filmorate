@@ -5,23 +5,23 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @Slf4j
 @RequestMapping("/films")
 public class FilmController {
-    private List<Film> films = new ArrayList<>();
+    private Map<Integer, Film> films = new HashMap<>();
 
     @GetMapping
-    public List<Film> getFilms() {
+    public Map<Integer, Film> getFilms() {
         return films;
     }
 
     @PostMapping
     public Film addFilm(@Valid @RequestBody Film film) {
-        films.add(film);
+        films.put(film.getId(), film);
         log.info("Добавлен фильм : {}", film);
         return film;
     }

@@ -7,6 +7,7 @@ import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -21,22 +22,22 @@ class UserControllerTest {
     @Test
     @DisplayName("Тест на добавление и вывод всех пользователей")
     void addAndGetUsers() {
-        List<User> expectedUsers = List.of(new User(0, "email@test.ru", "login", "name",
+        Map<Integer, User> expectedUsers = Map.of(1,new User(1, "email@test.ru", "login", "name",
                 LocalDate.of(2000, 10, 28)));
 
 
-        userController.addUser(new User(0, "email@test.ru", "login", "name",
+        userController.addUser(new User(1, "email@test.ru", "login", "name",
                 LocalDate.of(2000, 10, 28)));
-        List<User> actualUsers = userController.getUsers();
+       Map<Integer, User> actualUsers = userController.getUsers();
         assertEquals(expectedUsers, actualUsers);
     }
 
     @Test
     @DisplayName("Тест на обновление пользователя")
     void updateUser() {
-        User oldUser = userController.addUser(new User(0, "email@test.ru", "login", "name",
+        User oldUser = userController.addUser(new User(1, "email@test.ru", "login", "name",
                 LocalDate.of(2000, 10, 28)));
-        User newUser = new User(0, "email@test.ru", "login", "test",
+        User newUser = new User(1, "email@test.ru", "login", "test",
                 LocalDate.of(2000, 10, 28));
 
         User updatedUser = userController.updateUser(newUser);

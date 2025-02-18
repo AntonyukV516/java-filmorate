@@ -7,6 +7,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -21,13 +22,13 @@ class FilmControllerTest {
     @Test
     @DisplayName("Тест на добавление и вывод всех фильмов")
     void addAndGetFilms() {
-        List<Film> expectedFilms = List.of(new Film(0, "name", "description",
+        Map<Integer,Film> expectedFilms = Map.of(1, new Film(1, "name", "description",
                 LocalDate.of(2000, 10, 28), 100));
 
 
-        filmController.addFilm(new Film(0, "name", "description",
+        filmController.addFilm(new Film(1, "name", "description",
                 LocalDate.of(2000, 10, 28), 100));
-        List<Film> actualFilms = filmController.getFilms();
+        Map<Integer, Film> actualFilms = filmController.getFilms();
 
         assertEquals(expectedFilms, actualFilms);
     }
@@ -35,9 +36,9 @@ class FilmControllerTest {
     @Test
     @DisplayName("Тест на обновление фильма")
     void updateFilm() {
-        Film oldFilm = filmController.addFilm(new Film(0, "name", "description",
+        Film oldFilm = filmController.addFilm(new Film(1, "name", "description",
                 LocalDate.of(2000, 10, 28), 100));
-        Film newFilm = new Film(0, "test", "description",
+        Film newFilm = new Film(1, "test", "description",
                 LocalDate.of(2000, 10, 28), 100);
 
         Film updatedFilm = filmController.updateFilm(newFilm);
