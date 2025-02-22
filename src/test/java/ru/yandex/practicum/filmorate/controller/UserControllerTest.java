@@ -36,9 +36,9 @@ class UserControllerTest {
     @Test
     @DisplayName("Тест на обновление пользователя")
     void updateUser() {
-        User oldUser = userController.addUser(new User(1, "email@test.ru", "login", "name",
+        User oldUser = userController.addUser(new User(0, "email@test.ru", "login", "name",
                 LocalDate.of(2000, 10, 28)));
-        User newUser = new User(1, "email@test.ru", "login", "test",
+        User newUser = new User(oldUser.getId(), "email@test.ru", "login", "test",
                 LocalDate.of(2000, 10, 28));
 
         User updatedUser = userController.updateUser(newUser);
