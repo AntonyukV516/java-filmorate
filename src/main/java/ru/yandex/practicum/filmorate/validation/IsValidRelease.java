@@ -11,7 +11,7 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
 @Constraint(validatedBy = ReleaseValidator.class)
-public @interface IsValidRelease {
+public @interface  IsValidRelease {
     String message() default "Дата не может быть до изобретения кино";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};

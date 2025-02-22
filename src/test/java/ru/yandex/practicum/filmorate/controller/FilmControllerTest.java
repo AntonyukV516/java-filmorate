@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.FilmService;
 
 import java.time.LocalDate;
 import java.util.Map;
@@ -15,17 +16,17 @@ class FilmControllerTest {
 
     @BeforeEach
     void init() {
-        filmController = new FilmController();
+        FilmService filmService = new FilmService();
+        filmController = new FilmController(filmService);
     }
 
     @Test
     @DisplayName("Тест на добавление и вывод всех фильмов")
     void addAndGetFilms() {
-        Map<Integer,Film> expectedFilms = Map.of(1, new Film(1, "name", "description",
+        Map<Integer, Film> expectedFilms = Map.of(1, new Film(1, "name", "description",
                 LocalDate.of(2000, 10, 28), 100));
 
-
-        filmController.addFilm(new Film(1, "name", "description",
+        filmController.addFilm(new Film(0, "name", "description",
                 LocalDate.of(2000, 10, 28), 100));
         Map<Integer, Film> actualFilms = filmController.getFilms();
 
