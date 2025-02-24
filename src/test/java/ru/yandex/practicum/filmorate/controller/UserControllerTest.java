@@ -23,7 +23,7 @@ class UserControllerTest {
     @Test
     @DisplayName("Тест на добавление и вывод всех пользователей")
     void addAndGetUsers() {
-        Map<Integer, User> expectedUsers = Map.of(1, new User(1, "email@test.ru", "login", "name",
+        Map<Integer, User> expectedUsers = Map.of(0, new User(1, "email@test.ru", "login", "name",
                 LocalDate.of(2000, 10, 28)));
 
 

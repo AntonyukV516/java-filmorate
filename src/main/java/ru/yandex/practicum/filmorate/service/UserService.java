@@ -26,7 +26,7 @@ public class UserService {
 
     public User addUser(User user) {
         user.setId(getNextId());
-        users.put(user.getId(), user);
+        users.put(user.getId() - 1, user);
         if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
         }
@@ -36,7 +36,7 @@ public class UserService {
 
     public User updateUser(User newUser) {
         User oldUser;
-        Optional<User> optOldUser = Optional.ofNullable(users.get(newUser.getId()));
+        Optional<User> optOldUser = Optional.ofNullable(users.get(newUser.getId() - 1));
         if (optOldUser.isPresent()) {
             oldUser = optOldUser.get();
             oldUser.setEmail(newUser.getEmail());

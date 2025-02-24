@@ -26,13 +26,13 @@ public class FilmService {
 
     public Film addFilm(Film film) {
         film.setId(getNextId());
-        films.put(film.getId(), film);
+        films.put(film.getId() - 1, film);
         log.info("Добавлен фильм : {}", film);
         return film;
     }
 
     public Film updateFilm(Film newFilm) {
-        Optional<Film> optOldFilm = Optional.ofNullable(films.get(newFilm.getId()));
+        Optional<Film> optOldFilm = Optional.ofNullable(films.get(newFilm.getId() - 1));
         if (optOldFilm.isPresent()) {
             Film oldFilm = optOldFilm.get();
             oldFilm.setName(newFilm.getName());
