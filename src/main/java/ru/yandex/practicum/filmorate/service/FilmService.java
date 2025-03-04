@@ -2,45 +2,54 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.Comparator;
+import java.util.List;
 
 @Service
 @Data
 @Slf4j
+@Validated
 public class FilmService {
-    private final Map<Integer, Film> films = new HashMap<>();
-    private static Integer globalId = 0;
+    UserStorage userStorage;
+    FilmStorage filmStorage;
 
-    private static Integer getNextId() {
-        return ++globalId;
+    @Autowired
+    public FilmService(UserStorage userStorage, FilmStorage filmStorage) {
+        this.userStorage = userStorage;
+        this.filmStorage = filmStorage;
     }
 
-    public Map<Integer, Film> getFilms() {
-        return films;
+    public User addLike(int filmId, int userId) {
+        Film film = filmStorage.getFilms().get(filmId - 1);
+        User user = userStorage.getUsers().get(userId - 1);
+        film.getLikes().add(user.getId());
+        log.info("Пользователь {} добавил лайк фильму {} ", user, film);
+        return user;
     }
 
-    public Film addFilm(Film film) {
-        film.setId(getNextId());
-        films.put(film.getId() - 1, film);
-        log.info("Добавлен фильм : {}", film);
-        return film;
+    public User deleteLike(int filmId, int userId) {
+        Film film = filmStorage.getFilms().get(filmId - 1);
+        User user = userStorage.getUsers().get(userId - 1);
+        film.getLikes().remove(user.getId());
+        log.info("Пользователь {} удалил лайк фильму {} ", user, film);
+        return user;
     }
 
-    public Film updateFilm(Film newFilm) {
-        Optional<Film> optOldFilm = Optional.ofNullable(films.get(newFilm.getId() - 1));
-        if (optOldFilm.isPresent()) {
-            Film oldFilm = optOldFilm.get();
-            oldFilm.setName(newFilm.getName());
-            oldFilm.setDescription(newFilm.getDescription());
-            oldFilm.setReleaseDate(newFilm.getReleaseDate());
-            oldFilm.setDuration(newFilm.getDuration());
-            log.info("Старый фильм после обновления : {}", oldFilm);
-            return oldFilm;
-        } else throw new NullPointerException("Нельзя обновлять не созданный фильм");
+    public List<Film> getPopularFilms(@NotNull FilmStorage filmStorage, int maxSize) {
+        return filmStorage.getFilms()
+                .values()
+                .stream()
+                .sorted(Comparator.comparing(Film::getLikesSize).reversed())
+                .limit(maxSize)
+                .toList();
     }
 }
