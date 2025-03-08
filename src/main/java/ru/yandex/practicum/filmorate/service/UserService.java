@@ -24,8 +24,8 @@ public class UserService {
     }
 
     public User addFriend(int id1, int id2) {
-        User user1 = userStorage.getUsers().get(id1 - 1);
-        User user2 = userStorage.getUsers().get(id2 - 1);
+        User user1 = userStorage.getUsers().get(id1);
+        User user2 = userStorage.getUsers().get(id2);
         user1.getFriends().add(id2);
         user2.getFriends().add(id1);
 
@@ -34,15 +34,15 @@ public class UserService {
     }
 
     public void deleteFriend(int id1, int id2) {
-        User user1 = userStorage.getUsers().get(id1 - 1);
-        User user2 = userStorage.getUsers().get(id2 - 1);
+        User user1 = userStorage.getUsers().get(id1);
+        User user2 = userStorage.getUsers().get(id2);
         user1.getFriends().remove(user2.getId());
         user2.getFriends().remove(user1.getId());
         log.info("Пользователи {} и {} больше не друзья", user1, user2);
     }
 
     public Set<User> getFriends(int id) {
-        return userStorage.getUsers().get(id - 1)
+        return userStorage.getUsers().get(id)
                 .getFriends()
                 .stream()
                 .map(i -> userStorage.getUsers().get(i))
@@ -50,8 +50,8 @@ public class UserService {
     }
 
     public Set<User> getCommonFriends(int id1, int id2) {
-        User user1 = userStorage.getUsers().get(id1 - 1);
-        User user2 = userStorage.getUsers().get(id2 - 1);
+        User user1 = userStorage.getUsers().get(id1);
+        User user2 = userStorage.getUsers().get(id2);
         return user1.getFriends()
                 .stream()
                 .filter(u -> user2.getFriends().contains(u))

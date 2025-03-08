@@ -28,14 +28,14 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public Film addFilm(Film film) {
         film.setId(getNextId());
-        films.put(film.getId() - 1, film);
+        films.put(film.getId(), film);
         log.info("Добавлен фильм : {}", film);
         return film;
     }
 
     @Override
     public Film updateFilm(Film newFilm) {
-        Optional<Film> optOldFilm = Optional.ofNullable(films.get(newFilm.getId() - 1));
+        Optional<Film> optOldFilm = Optional.ofNullable(films.get(newFilm.getId()));
         if (optOldFilm.isPresent()) {
             Film oldFilm = optOldFilm.get();
             oldFilm.setName(newFilm.getName());

@@ -29,16 +29,16 @@ public class FilmService {
     }
 
     public User addLike(int filmId, int userId) {
-        Film film = filmStorage.getFilms().get(filmId - 1);
-        User user = userStorage.getUsers().get(userId - 1);
+        Film film = filmStorage.getFilms().get(filmId);
+        User user = userStorage.getUsers().get(userId);
         film.getLikes().add(user.getId());
         log.info("Пользователь {} добавил лайк фильму {} ", user, film);
         return user;
     }
 
     public User deleteLike(int filmId, int userId) {
-        Film film = filmStorage.getFilms().get(filmId - 1);
-        User user = userStorage.getUsers().get(userId - 1);
+        Film film = filmStorage.getFilms().get(filmId);
+        User user = userStorage.getUsers().get(userId);
         film.getLikes().remove(user.getId());
         log.info("Пользователь {} удалил лайк фильму {} ", user, film);
         return user;

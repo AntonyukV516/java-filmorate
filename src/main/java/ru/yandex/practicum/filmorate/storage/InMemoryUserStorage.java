@@ -28,7 +28,7 @@ public class InMemoryUserStorage implements UserStorage {
     @Override
     public User addUser(User user) {
         user.setId(getNextId());
-        users.put(user.getId() - 1, user);
+        users.put(user.getId(), user);
         if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
         }
@@ -39,7 +39,7 @@ public class InMemoryUserStorage implements UserStorage {
     @Override
     public User updateUser(User newUser) {
         User oldUser;
-        Optional<User> optOldUser = Optional.ofNullable(users.get(newUser.getId() - 1));
+        Optional<User> optOldUser = Optional.ofNullable(users.get(newUser.getId()));
         if (optOldUser.isPresent()) {
             oldUser = optOldUser.get();
             oldUser.setEmail(newUser.getEmail());
