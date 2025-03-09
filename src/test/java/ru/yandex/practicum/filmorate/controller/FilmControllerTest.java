@@ -31,7 +31,7 @@ class FilmControllerTest {
     @Test
     @DisplayName("Тест на добавление и вывод всех фильмов")
     void addAndGetFilms() {
-        Map<Integer, Film> expectedFilms = Map.of(0, new Film(1, "name", "description",
+        Map<Integer, Film> expectedFilms = Map.of(1, new Film(1, "name", "description",
                 LocalDate.of(2000, 10, 28), 100));
 
         filmController.addFilm(new Film(0, "name", "description",
