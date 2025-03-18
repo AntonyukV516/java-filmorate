@@ -31,7 +31,7 @@ class FilmControllerTest {
     @Test
     @DisplayName("Тест на добавление и вывод всех фильмов")
     void addAndGetFilms() {
-        List<Film> expectedFilms = List.of( new Film(1, "name", "description",
+        List<Film> expectedFilms = List.of(new Film(1, "name", "description",
                 LocalDate.of(2000, 10, 28), 100));
 
         filmController.addFilm(new Film(1, "name", "description",
