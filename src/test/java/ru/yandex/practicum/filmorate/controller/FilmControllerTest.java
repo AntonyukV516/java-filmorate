@@ -13,7 +13,7 @@ import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.time.LocalDate;
-import java.util.Map;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -25,18 +25,18 @@ class FilmControllerTest {
     void init() {
         FilmStorage filmStorage = new InMemoryFilmStorage();
         UserStorage userStorage = new InMemoryUserStorage();
-        filmController = new FilmController(filmStorage, new FilmService(userStorage, filmStorage));
+        filmController = new FilmController(new FilmService(userStorage, filmStorage));
     }
 
     @Test
     @DisplayName("Тест на добавление и вывод всех фильмов")
     void addAndGetFilms() {
-        Map<Integer, Film> expectedFilms = Map.of(1, new Film(1, "name", "description",
+        List<Film> expectedFilms = List.of( new Film(1, "name", "description",
                 LocalDate.of(2000, 10, 28), 100));
 
-        filmController.addFilm(new Film(0, "name", "description",
+        filmController.addFilm(new Film(1, "name", "description",
                 LocalDate.of(2000, 10, 28), 100));
-        Map<Integer, Film> actualFilms = filmController.getFilms();
+        List<Film> actualFilms = filmController.getFilms();
 
         assertEquals(expectedFilms, actualFilms);
     }

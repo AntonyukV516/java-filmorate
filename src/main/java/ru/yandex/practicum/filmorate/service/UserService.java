@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.service;
 
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -8,11 +7,11 @@ import org.springframework.validation.annotation.Validated;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
-@Data
 @Slf4j
 @Validated
 public class UserService {
@@ -57,5 +56,17 @@ public class UserService {
                 .filter(u -> user2.getFriends().contains(u))
                 .map(id -> userStorage.getUsers().get(id))
                 .collect(Collectors.toSet());
+    }
+
+    public Map<Integer, User> getUsers() {
+        return userStorage.getUsers();
+    }
+
+    public User addUser(User user) {
+        return userStorage.addUser(user);
+    }
+
+    public User updateUser(User newUser) {
+        return userStorage.updateUser(newUser);
     }
 }

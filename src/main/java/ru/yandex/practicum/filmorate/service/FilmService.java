@@ -1,8 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
@@ -13,9 +11,9 @@ import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
 @Service
-@Data
 @Slf4j
 @Validated
 public class FilmService {
@@ -44,12 +42,24 @@ public class FilmService {
         return user;
     }
 
-    public List<Film> getPopularFilms(@NotNull FilmStorage filmStorage, int maxSize) {
+    public List<Film> getPopularFilms(int maxSize) {
         return filmStorage.getFilms()
                 .values()
                 .stream()
                 .sorted(Comparator.comparing(Film::getLikesSize).reversed())
                 .limit(maxSize)
                 .toList();
+    }
+
+    public Map<Integer, Film> getFilms() {
+        return filmStorage.getFilms();
+    }
+
+    public Film addFilm(Film film) {
+        return filmStorage.addFilm(film);
+    }
+
+    public Film updateFilm(Film newFilm) {
+        return filmStorage.updateFilm(newFilm);
     }
 }

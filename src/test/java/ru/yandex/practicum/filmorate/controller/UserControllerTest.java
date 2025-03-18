@@ -9,7 +9,7 @@ import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.time.LocalDate;
-import java.util.Map;
+import java.util.List;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -20,19 +20,19 @@ class UserControllerTest {
     @BeforeEach
     void init() {
         UserStorage userStorage = new InMemoryUserStorage();
-        userController = new UserController(userStorage, new UserService(userStorage));
+        userController = new UserController(new UserService(userStorage));
     }
 
     @Test
     @DisplayName("Тест на добавление и вывод всех пользователей")
     void addAndGetUsers() {
-        Map<Integer, User> expectedUsers = Map.of(1, new User(1, "email@test.ru", "login", "name",
+        List<User> expectedUsers = List.of(new User(1, "email@test.ru", "login", "name",
                 LocalDate.of(2000, 10, 28), Set.of()));
 
 
         userController.addUser(new User(0, "email@test.ru", "login", "name",
                 LocalDate.of(2000, 10, 28), Set.of()));
-        Map<Integer, User> actualUsers = userController.getUsers();
+        List<User> actualUsers = userController.getUsers();
         assertEquals(expectedUsers, actualUsers);
     }
 

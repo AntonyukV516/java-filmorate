@@ -6,37 +6,35 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
 
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 @RestController
 @Slf4j
 @RequestMapping("/users")
 public class UserController {
-    private final UserStorage userStorage;
     private final UserService userService;
 
     @Autowired
-    public UserController(UserStorage userStorage, UserService userService) {
-        this.userStorage = userStorage;
+    public UserController(UserService userService) {
         this.userService = userService;
     }
 
     @GetMapping
-    public Map<Integer, User> getUsers() {
-        return userStorage.getUsers();
+    public List<User> getUsers() {
+        return new ArrayList<>(userService.getUsers().values());
     }
 
     @PostMapping
     public User addUser(@Valid @RequestBody User user) {
-        return userStorage.addUser(user);
+        return userService.addUser(user);
     }
 
     @PutMapping
     public User updateUser(@Valid @RequestBody User newUser) {
-        return userStorage.updateUser(newUser);
+        return userService.updateUser(newUser);
     }
 
     @PutMapping("/{id}/friends/{friendId}")
