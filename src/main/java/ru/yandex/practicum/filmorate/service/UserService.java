@@ -3,17 +3,16 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.annotation.Validated;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
 @Slf4j
-@Validated
 public class UserService {
     private final UserStorage userStorage;
 
@@ -58,8 +57,8 @@ public class UserService {
                 .collect(Collectors.toSet());
     }
 
-    public Map<Integer, User> getUsers() {
-        return userStorage.getUsers();
+    public List<User> getUsers() {
+        return new ArrayList<>(userStorage.getUsers().values());
     }
 
     public User addUser(User user) {

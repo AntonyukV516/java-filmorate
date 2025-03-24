@@ -3,19 +3,17 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.annotation.Validated;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 
 @Service
 @Slf4j
-@Validated
 public class FilmService {
     UserStorage userStorage;
     FilmStorage filmStorage;
@@ -51,8 +49,8 @@ public class FilmService {
                 .toList();
     }
 
-    public Map<Integer, Film> getFilms() {
-        return filmStorage.getFilms();
+    public List<Film> getFilms() {
+        return new ArrayList<>(filmStorage.getFilms().values());
     }
 
     public Film addFilm(Film film) {
