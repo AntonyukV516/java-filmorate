@@ -1,56 +1,71 @@
 package ru.yandex.practicum.filmorate.service;
 
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
-@Data
 @Slf4j
 public class UserService {
-    private final Map<Integer, User> users = new HashMap<>();
-    private static Integer globalId = 0;
+    private final UserStorage userStorage;
 
-    private static Integer getNextId() {
-        return ++globalId;
+    @Autowired
+    public UserService(UserStorage userStorage) {
+        this.userStorage = userStorage;
     }
 
-    public Map<Integer, User> getUsers() {
-        return users;
+    public User addFriend(int id1, int id2) {
+        User user1 = userStorage.getUsers().get(id1);
+        User user2 = userStorage.getUsers().get(id2);
+        user1.getFriends().add(id2);
+        user2.getFriends().add(id1);
+
+        log.info("Пользователь {} и {} теперь друзья", user1, user2);
+        return user2;
+    }
+
+    public void deleteFriend(int id1, int id2) {
+        User user1 = userStorage.getUsers().get(id1);
+        User user2 = userStorage.getUsers().get(id2);
+        user1.getFriends().remove(user2.getId());
+        user2.getFriends().remove(user1.getId());
+        log.info("Пользователи {} и {} больше не друзья", user1, user2);
+    }
+
+    public Set<User> getFriends(int id) {
+        return userStorage.getUsers().get(id)
+                .getFriends()
+                .stream()
+                .map(i -> userStorage.getUsers().get(i))
+                .collect(Collectors.toSet());
+    }
+
+    public Set<User> getCommonFriends(int id1, int id2) {
+        User user1 = userStorage.getUsers().get(id1);
+        User user2 = userStorage.getUsers().get(id2);
+        return user1.getFriends()
+                .stream()
+                .filter(u -> user2.getFriends().contains(u))
+                .map(id -> userStorage.getUsers().get(id))
+                .collect(Collectors.toSet());
+    }
+
+    public List<User> getUsers() {
+        return new ArrayList<>(userStorage.getUsers().values());
     }
 
     public User addUser(User user) {
-        user.setId(getNextId());
-        users.put(user.getId() - 1, user);
-        if (user.getName() == null || user.getName().isBlank()) {
-            user.setName(user.getLogin());
-        }
-        log.info("Добавлен пользователь : {}", user);
-        return user;
+        return userStorage.addUser(user);
     }
 
     public User updateUser(User newUser) {
-        User oldUser;
-        Optional<User> optOldUser = Optional.ofNullable(users.get(newUser.getId() - 1));
-        if (optOldUser.isPresent()) {
-            oldUser = optOldUser.get();
-            oldUser.setEmail(newUser.getEmail());
-            oldUser.setLogin(newUser.getLogin());
-            Optional<String> optName = Optional.ofNullable(newUser.getName());
-            if (optName.isPresent()) {
-                oldUser.setName(newUser.getName());
-            } else {
-                oldUser.setName(newUser.getLogin());
-            }
-            oldUser.setBirthday(newUser.getBirthday());
-            log.info("Старый пользователь после обновления : {}", oldUser);
-            return oldUser;
-        }
-        throw new NullPointerException("Нельзя обновлять не созданного пользователя");
+        return userStorage.updateUser(newUser);
     }
 }
