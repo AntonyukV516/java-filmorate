@@ -2,9 +2,7 @@ package ru.yandex.practicum.filmorate.model;
 
 
 import jakarta.validation.constraints.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.validation.IsValidRelease;
 
@@ -16,8 +14,9 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Component
+@Builder
 public class Film {
-    private int id;
+    private Integer id;
     @NotBlank
     private String name;
     @Size(max = 200)
@@ -26,7 +25,12 @@ public class Film {
     private LocalDate releaseDate;
     @Positive
     private int duration;
-    private Set<Integer> likes = new HashSet<>();
+    @NonNull
+    private Mpa mpa;
+    @Builder.Default
+    private Set<Genre> genres = new HashSet<>();
+    @Builder.Default
+    private Set<Integer> likedByUserIds = new HashSet<>();
 
     public Film(int id, String name, String description, LocalDate releaseDate, int duration) {
         this.id = id;
@@ -37,6 +41,6 @@ public class Film {
     }
 
     public Integer getLikesSize() {
-        return likes.size();
+        return likedByUserIds.size();
     }
 }
