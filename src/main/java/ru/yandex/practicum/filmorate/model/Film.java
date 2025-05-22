@@ -3,7 +3,6 @@ package ru.yandex.practicum.filmorate.model;
 
 import jakarta.validation.constraints.*;
 import lombok.*;
-import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.validation.IsValidRelease;
 
 import java.time.LocalDate;
@@ -13,7 +12,6 @@ import java.util.Set;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Component
 @Builder
 public class Film {
     private Integer id;
@@ -25,7 +23,6 @@ public class Film {
     private LocalDate releaseDate;
     @Positive
     private int duration;
-    @NonNull
     private Mpa mpa;
     @Builder.Default
     private Set<Genre> genres = new HashSet<>();

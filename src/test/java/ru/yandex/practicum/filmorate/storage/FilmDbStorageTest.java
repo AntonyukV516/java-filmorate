@@ -92,29 +92,4 @@ class FilmDbStorageTest {
         assertThat(names.contains("Updated name")).isTrue();
     }
 
-    @Test
-    void getGenres() {
-        Collection<Genre> genres = filmDbStorage.getGenres();
-        assertThat(genres.size()).isEqualTo(6);
-    }
-
-    @Test
-    void getGenreById() {
-        Genre genre = filmDbStorage.getGenreById(film.getId());
-        assertThat(genre)
-                .hasFieldOrPropertyWithValue("id", 1);
-    }
-
-    @Test
-    void getMpa() {
-        Collection<Mpa> allMpa = filmDbStorage.getMpa();
-        assertThat(allMpa.size()).isEqualTo(5);
-    }
-
-    @Test
-    void getMpaById() {
-        Mpa mpa = filmDbStorage.getMpaById(1);
-        assertThat(mpa)
-                .hasFieldOrPropertyWithValue("id", 1);
-    }
 }

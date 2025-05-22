@@ -8,6 +8,8 @@ import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.GenreStorage;
+import ru.yandex.practicum.filmorate.storage.MpaStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.Comparator;
@@ -18,11 +20,16 @@ import java.util.List;
 public class FilmService {
     UserStorage userStorage;
     FilmStorage filmStorage;
+    GenreStorage genreStorage;
+    MpaStorage mpaStorage;
 
     @Autowired
-    public FilmService(UserStorage userStorage, FilmStorage filmStorage) {
+    public FilmService(UserStorage userStorage, FilmStorage filmStorage,
+                       GenreStorage genreStorage, MpaStorage mpaStorage) {
         this.userStorage = userStorage;
         this.filmStorage = filmStorage;
+        this.genreStorage = genreStorage;
+        this.mpaStorage = mpaStorage;
     }
 
     public User addLike(int filmId, int userId) {
@@ -52,19 +59,19 @@ public class FilmService {
     }
 
     public List<Genre> getGenres() {
-        return filmStorage.getGenres();
+        return genreStorage.getGenres();
     }
 
     public Genre getGenreById(int id) {
-        return filmStorage.getGenreById(id);
+        return genreStorage.getGenreById(id);
     }
 
     public List<Mpa> getMpa() {
-        return filmStorage.getMpa();
+        return mpaStorage.getMpa();
     }
 
     public Mpa getMpaById(int id) {
-        return filmStorage.getMpaById(id);
+        return mpaStorage.getMpaById(id);
     }
 
     public Film getFilmById(int id) {

@@ -3,8 +3,6 @@ package ru.yandex.practicum.filmorate.storage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.util.*;
 
@@ -51,26 +49,6 @@ public class InMemoryFilmStorage implements FilmStorage {
             log.info("Старый фильм после обновления : {}", oldFilm);
             return oldFilm;
         } else throw new NullPointerException("Нельзя обновлять не созданный фильм");
-    }
-
-    @Override
-    public List<Genre> getGenres() {
-        return List.of();
-    }
-
-    @Override
-    public Genre getGenreById(int id) {
-        return null;
-    }
-
-    @Override
-    public List<Mpa> getMpa() {
-        return List.of();
-    }
-
-    @Override
-    public Mpa getMpaById(int id) {
-        return null;
     }
 }
 

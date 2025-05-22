@@ -4,12 +4,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
-import org.springframework.web.server.ResponseStatusException;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.sql.PreparedStatement;
@@ -48,8 +47,11 @@ public class UserDbStorage implements UserStorage {
         if (users.isEmpty()) {
             return Collections.emptyList();
         }
+
+        Map<Integer, Set<Integer>> friendsByUserId = getAllFriends();
+
         users.forEach(user -> {
-            Set<Integer> friends = getFriends(user.getId());
+            Set<Integer> friends = friendsByUserId.getOrDefault(user.getId(), Collections.emptySet());
             user.setFriends(friends);
         });
         return users;
@@ -65,7 +67,7 @@ public class UserDbStorage implements UserStorage {
             }
             return user;
         } catch (EmptyResultDataAccessException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Пользователь с id  " + id + " не найден");
+            throw new NotFoundException("Пользователь с id  " + id + " не найден");
         }
     }
 
@@ -124,6 +126,19 @@ public class UserDbStorage implements UserStorage {
         return new HashSet<>(
                 jdbcTemplate.queryForList(friendsSql, Integer.class, id)
         );
+    }
+
+    private Map<Integer, Set<Integer>> getAllFriends() {
+        String sql = "SELECT user_id, friend_id FROM user_friends";
+        return jdbcTemplate.query(sql, rs -> {
+            Map<Integer, Set<Integer>> map = new HashMap<>();
+            while (rs.next()) {
+                int userId = rs.getInt("user_id");
+                int friendId = rs.getInt("friend_id");
+                map.computeIfAbsent(userId, k -> new HashSet<>()).add(friendId);
+            }
+            return map;
+        });
     }
 }
 

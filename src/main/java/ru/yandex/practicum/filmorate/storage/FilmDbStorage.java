@@ -5,12 +5,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
-import org.springframework.web.server.ResponseStatusException;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
@@ -40,9 +39,6 @@ public class FilmDbStorage implements FilmStorage {
                 .description(resultSet.getString("description"))
                 .releaseDate(resultSet.getDate("release_date").toLocalDate())
                 .duration(resultSet.getInt("duration"))
-                .mpa(getMpa(resultSet.getInt("rating_id")))
-                .genres(getFilmGenres(resultSet.getInt("id")))
-                .likedByUserIds(getLikesByFilmId(resultSet.getInt("id")))
                 .build();
     }
 
@@ -75,7 +71,7 @@ public class FilmDbStorage implements FilmStorage {
                 return ps;
             }, keyHolder);
         } catch (DataIntegrityViolationException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+            throw new NotFoundException("Ошибка добавления фильма");
         }
         Integer generatedId = Objects.requireNonNull(keyHolder.getKey()).intValue();
         film.setId(generatedId);
@@ -95,6 +91,17 @@ public class FilmDbStorage implements FilmStorage {
         if (films.isEmpty()) {
             return Collections.emptyList();
         }
+
+        Map<Integer, Mpa> mpaMap = getAllMpa();
+        Map<Integer, Set<Genre>> genresByFilmId = getAllGenresByFilmId();
+        Map<Integer, Set<Integer>> likesByFilmId = getAllLikesByFilmId();
+
+        films.forEach(film -> {
+            film.setMpa(mpaMap.get(film.getId()));
+            film.setGenres(genresByFilmId.getOrDefault(film.getId(), new HashSet<>()));
+            film.setLikedByUserIds(likesByFilmId.getOrDefault(film.getId(), new HashSet<>()));
+        });
+
         return films;
     }
 
@@ -102,9 +109,16 @@ public class FilmDbStorage implements FilmStorage {
     public Film getFilmById(Integer id) {
         String sql = "SELECT * FROM film WHERE id = ?";
         try {
-            return jdbcTemplate.queryForObject(sql, this::mapRowToFilm, id);
+            Film film = jdbcTemplate.queryForObject(sql, this::mapRowToFilm, id);
+
+            film.setMpa(getMpa(id));
+            film.setGenres(getFilmGenres(id));
+            film.setLikedByUserIds(getLikesByFilmId(id));
+
+            return film;
+
         } catch (EmptyResultDataAccessException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Фильм с id  " + id + " не найден");
+            throw new NotFoundException("Фильм с id  " + id + " не найден");
         }
     }
 
@@ -142,63 +156,6 @@ public class FilmDbStorage implements FilmStorage {
         return newFilm;
     }
 
-    @Override
-    public List<Genre> getGenres() {
-        String sql = "SELECT * FROM genre ORDER BY id";
-        List<Genre> genres = jdbcTemplate.query(sql, this::mapRowToGenre);
-        if (genres.isEmpty()) {
-            return Collections.emptyList();
-        }
-        return genres;
-    }
-
-    @Override
-    public Genre getGenreById(int id) {
-        String sql = "SELECT * FROM genre WHERE id = ?";
-        try {
-            return jdbcTemplate.queryForObject(sql, this::mapRowToGenre, id);
-        } catch (EmptyResultDataAccessException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        }
-    }
-
-    @Override
-    public List<Mpa> getMpa() {
-        String sql = "SELECT * FROM MPA ORDER BY id";
-        List<Mpa> mpa = jdbcTemplate.query(sql, this::mapRowToMpa);
-        if (mpa.isEmpty()) {
-            return Collections.emptyList();
-        }
-        return mpa;
-    }
-
-    @Override
-    public Mpa getMpaById(int id) {
-        String sql = "SELECT * FROM MPA WHERE id = ?";
-        try {
-            return jdbcTemplate.queryForObject(sql, this::mapRowToMpa, id);
-        } catch (EmptyResultDataAccessException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        }
-    }
-
-    private Mpa getMpa(Integer id) {
-        String sqlQuery = "SELECT * FROM MPA WHERE id = ?";
-        return jdbcTemplate.queryForObject(sqlQuery, this::mapRowToMpa, id);
-    }
-
-    private Set<Genre> getFilmGenres(Integer film_id) {
-        String sql = "SELECT g.id, g.name FROM genre g " +
-                "JOIN film_genre fg ON g.id = fg.genre_id " +
-                "WHERE fg.film_id = ?";
-        return new HashSet<>(jdbcTemplate.query(sql, this::mapRowToGenre, film_id));
-    }
-
-    private Set<Integer> getLikesByFilmId(Integer id) {
-        String sql = "SELECT user_id FROM film_likes WHERE film_id = ?";
-        return new HashSet<>(jdbcTemplate.queryForList(sql, Integer.class, id));
-    }
-
     private void addFilmGenres(Integer filmId, Set<Genre> genres) {
         String sql = "INSERT INTO film_genre (film_id, genre_id) VALUES (?, ?)";
 
@@ -208,8 +165,27 @@ public class FilmDbStorage implements FilmStorage {
         try {
             jdbcTemplate.batchUpdate(sql, batchArgs);
         } catch (DataIntegrityViolationException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+            throw new NotFoundException("Ошибка добавления жанров");
         }
+    }
+
+    private Set<Integer> getLikesByFilmId(Integer id) {
+        String sql = "SELECT user_id FROM film_likes WHERE film_id = ?";
+        return new HashSet<>(jdbcTemplate.queryForList(sql, Integer.class, id));
+    }
+
+    private Set<Genre> getFilmGenres(Integer film_id) {
+        String sql = "SELECT g.id, g.name FROM genre g " +
+                "JOIN film_genre fg ON g.id = fg.genre_id " +
+                "WHERE fg.film_id = ?";
+        return new HashSet<>(jdbcTemplate.query(sql, this::mapRowToGenre, film_id));
+    }
+
+    private Mpa getMpa(Integer id) {
+        String mpaSql = "SELECT rating_id FROM film WHERE id = ?";
+        Integer mpaId = jdbcTemplate.queryForObject(mpaSql, Integer.class, id);
+        String sqlQuery = "SELECT * FROM MPA WHERE id = ?";
+        return jdbcTemplate.queryForObject(sqlQuery, this::mapRowToMpa, mpaId);
     }
 
     private void addFilmLikes(Integer filmId, Set<Integer> likes) {
@@ -221,7 +197,45 @@ public class FilmDbStorage implements FilmStorage {
         try {
             jdbcTemplate.batchUpdate(sql, batchArgs);
         } catch (DataIntegrityViolationException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+            throw new NotFoundException("Ошибка добавления лайков");
         }
+    }
+
+    private Map<Integer, Mpa> getAllMpa() {
+        String sql = "SELECT * FROM MPA";
+        return jdbcTemplate.query(sql, rs -> {
+            Map<Integer, Mpa> map = new HashMap<>();
+            while (rs.next()) {
+                map.put(rs.getInt("id"),
+                        new Mpa(rs.getInt("id"), rs.getString("name")));
+            }
+            return map;
+        });
+    }
+
+    private Map<Integer, Set<Genre>> getAllGenresByFilmId() {
+        String sql = " SELECT fg.film_id, g.id, g.name FROM film_genre fg JOIN genre g ON fg.genre_id = g.id ";
+        return jdbcTemplate.query(sql, rs -> {
+            Map<Integer, Set<Genre>> map = new HashMap<>();
+            while (rs.next()) {
+                int filmId = rs.getInt("film_id");
+                Genre genre = new Genre(rs.getInt("id"), rs.getString("name"));
+                map.computeIfAbsent(filmId, k -> new HashSet<>()).add(genre);
+            }
+            return map;
+        });
+    }
+
+    private Map<Integer, Set<Integer>> getAllLikesByFilmId() {
+        String sql = "SELECT film_id, user_id FROM film_likes";
+        return jdbcTemplate.query(sql, rs -> {
+            Map<Integer, Set<Integer>> map = new HashMap<>();
+            while (rs.next()) {
+                int filmId = rs.getInt("film_id");
+                int userId = rs.getInt("user_id");
+                map.computeIfAbsent(filmId, k -> new HashSet<>()).add(userId);
+            }
+            return map;
+        });
     }
 }
