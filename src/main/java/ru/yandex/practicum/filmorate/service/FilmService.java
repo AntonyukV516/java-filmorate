@@ -4,11 +4,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.GenreStorage;
+import ru.yandex.practicum.filmorate.storage.MpaStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -17,40 +20,66 @@ import java.util.List;
 public class FilmService {
     UserStorage userStorage;
     FilmStorage filmStorage;
+    GenreStorage genreStorage;
+    MpaStorage mpaStorage;
 
     @Autowired
-    public FilmService(UserStorage userStorage, FilmStorage filmStorage) {
+    public FilmService(UserStorage userStorage, FilmStorage filmStorage,
+                       GenreStorage genreStorage, MpaStorage mpaStorage) {
         this.userStorage = userStorage;
         this.filmStorage = filmStorage;
+        this.genreStorage = genreStorage;
+        this.mpaStorage = mpaStorage;
     }
 
     public User addLike(int filmId, int userId) {
-        Film film = filmStorage.getFilms().get(filmId);
-        User user = userStorage.getUsers().get(userId);
-        film.getLikes().add(user.getId());
+        Film film = filmStorage.getFilmById(filmId);
+        User user = userStorage.getUserById(userId);
+        film.getLikedByUserIds().add(user.getId());
+        updateFilm(film);
         log.info("Пользователь {} добавил лайк фильму {} ", user, film);
         return user;
     }
 
     public User deleteLike(int filmId, int userId) {
-        Film film = filmStorage.getFilms().get(filmId);
-        User user = userStorage.getUsers().get(userId);
-        film.getLikes().remove(user.getId());
+        Film film = filmStorage.getFilmById(filmId);
+        User user = userStorage.getUserById(userId);
+        film.getLikedByUserIds().remove(user.getId());
+        updateFilm(film);
         log.info("Пользователь {} удалил лайк фильму {} ", user, film);
         return user;
     }
 
     public List<Film> getPopularFilms(int maxSize) {
         return filmStorage.getFilms()
-                .values()
                 .stream()
                 .sorted(Comparator.comparing(Film::getLikesSize).reversed())
                 .limit(maxSize)
                 .toList();
     }
 
+    public List<Genre> getGenres() {
+        return genreStorage.getGenres();
+    }
+
+    public Genre getGenreById(int id) {
+        return genreStorage.getGenreById(id);
+    }
+
+    public List<Mpa> getMpa() {
+        return mpaStorage.getMpa();
+    }
+
+    public Mpa getMpaById(int id) {
+        return mpaStorage.getMpaById(id);
+    }
+
+    public Film getFilmById(int id) {
+        return filmStorage.getFilmById(id);
+    }
+
     public List<Film> getFilms() {
-        return new ArrayList<>(filmStorage.getFilms().values());
+        return filmStorage.getFilms();
     }
 
     public Film addFilm(Film film) {

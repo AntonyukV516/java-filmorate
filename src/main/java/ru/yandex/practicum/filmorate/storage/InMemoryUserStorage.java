@@ -4,9 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.User;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Component
 @Slf4j
@@ -19,8 +17,16 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public Map<Integer, User> getUsers() {
-        return users;
+    public List<User> getUsers() {
+        return new ArrayList<>(users.values());
+    }
+
+    @Override
+    public User getUserById(Integer id) throws NullPointerException {
+        return getUsers()
+                .stream()
+                .filter(u -> Objects.equals(u.getId(), id))
+                .findFirst().orElseThrow(NullPointerException::new);
     }
 
     @Override
@@ -55,3 +61,4 @@ public class InMemoryUserStorage implements UserStorage {
         throw new NullPointerException("Нельзя обновлять не созданного пользователя");
     }
 }
+

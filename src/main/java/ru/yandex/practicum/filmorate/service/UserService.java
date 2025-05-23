@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -22,43 +22,44 @@ public class UserService {
     }
 
     public User addFriend(int id1, int id2) {
-        User user1 = userStorage.getUsers().get(id1);
-        User user2 = userStorage.getUsers().get(id2);
+        User user1 = userStorage.getUserById(id1);
+        User user2 = userStorage.getUserById(id2);
         user1.getFriends().add(id2);
-        user2.getFriends().add(id1);
+        updateUser(user1);
 
-        log.info("Пользователь {} и {} теперь друзья", user1, user2);
+        log.info("Пользователь {} добавил в друзья пользователя {}", user1, user2);
         return user2;
     }
 
     public void deleteFriend(int id1, int id2) {
-        User user1 = userStorage.getUsers().get(id1);
-        User user2 = userStorage.getUsers().get(id2);
-        user1.getFriends().remove(user2.getId());
-        user2.getFriends().remove(user1.getId());
-        log.info("Пользователи {} и {} больше не друзья", user1, user2);
+        User user1 = userStorage.getUserById(id1);
+        user1.getFriends().remove(id2);
+        updateUser(user1);
+        log.info("Пользователь {} удалил из друзей пользователя {}", user1, userStorage.getUserById(id2));
     }
 
     public Set<User> getFriends(int id) {
-        return userStorage.getUsers().get(id)
+        return userStorage.getUserById(id)
                 .getFriends()
                 .stream()
-                .map(i -> userStorage.getUsers().get(i))
+                .map(userStorage::getUserById)
                 .collect(Collectors.toSet());
     }
 
     public Set<User> getCommonFriends(int id1, int id2) {
-        User user1 = userStorage.getUsers().get(id1);
-        User user2 = userStorage.getUsers().get(id2);
-        return user1.getFriends()
-                .stream()
-                .filter(u -> user2.getFriends().contains(u))
-                .map(id -> userStorage.getUsers().get(id))
+        User user1 = userStorage.getUserById(id1);
+        User user2 = userStorage.getUserById(id2);
+
+        Set<Integer> commonFriendIds = new HashSet<>(user1.getFriends());
+        commonFriendIds.retainAll(user2.getFriends());
+
+        return commonFriendIds.stream()
+                .map(userStorage::getUserById)
                 .collect(Collectors.toSet());
     }
 
     public List<User> getUsers() {
-        return new ArrayList<>(userStorage.getUsers().values());
+        return userStorage.getUsers();
     }
 
     public User addUser(User user) {
@@ -69,3 +70,4 @@ public class UserService {
         return userStorage.updateUser(newUser);
     }
 }
+
